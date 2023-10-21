@@ -11,7 +11,7 @@
         {{#each cart.products}}
             <li>
                 {{this.product.title}} - Quantity: {{this.quantity}} - Price: ${{this.product.price}}
-                <button onclick="removeFromCart('{{this.product._id}}')">Remove</button>
+                <button onclick="removeFromCart('{{this.product.product}}')">Remove</button>
             </li>
         {{/each}}
     </ul>
