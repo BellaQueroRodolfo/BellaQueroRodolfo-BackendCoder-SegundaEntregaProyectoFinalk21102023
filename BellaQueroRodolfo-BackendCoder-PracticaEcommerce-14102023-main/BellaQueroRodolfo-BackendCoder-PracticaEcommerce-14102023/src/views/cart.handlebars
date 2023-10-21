@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+</head>
+<body>
+    <h1>Your Shopping Cart</h1>
+    <ul>
+        {{#each cart.products}}
+            <li>
+                {{this.product.title}} - Quantity: {{this.quantity}} - Price: ${{this.product.price}}
+                <button onclick="removeFromCart('{{this.product._id}}')">Remove</button>
+            </li>
+        {{/each}}
+    </ul>
+    <p>Total Price: ${{cart.totalPrice}}</p>
+
+    <script>
+        function removeFromCart(productId) {
+            fetch(`/api/carts/{{cart._id}}/products/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Product removed from cart successfully!');
+                } else {
+                    alert('Failed to remove product from cart.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while removing the product from the cart.');
+            });
+        }
+    </script>
+</body>
+</html>
