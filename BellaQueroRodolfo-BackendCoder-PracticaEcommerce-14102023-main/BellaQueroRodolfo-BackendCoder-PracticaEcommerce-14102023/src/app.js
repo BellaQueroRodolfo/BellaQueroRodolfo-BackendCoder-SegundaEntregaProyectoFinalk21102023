@@ -1,35 +1,20 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
-const http = require('http');
-const socketIo = require('socket.io');
-const mongoose = require('mongoose'); // Import Mongoose
-
+const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-
 const port = 8080;
 
 app.use(express.json());
-
-const productsRouter = require('./routes/product');
-const cartsRouter = require('./routes/cart');
-
-app.engine('handlebars', exphbs.engine());
+app.engine('handlebars', exphbs({
+  defaultLayout: 'main',
+  layoutsDir: path.join(__dirname, 'src', 'views', 'layouts'),
+  partialsDir: path.join(__dirname, 'src', 'views', 'partials'),
+  extname: '.handlebars',
+}));
 app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'src', 'views'));
 app.use(express.static('public'));
-app.use('/products', productsRouter);
-app.use('/carts', cartsRouter);
-app.get('/chat', (req, res) => {
-  res.render('chat', { layout: 'main' });
-});
-
-io.on('connection', (socket) => {
-  socket.on('new-product', (product) => {
-    io.emit('product-added', product);
-  });
-});
-
 mongoose.connect('mongodb://localhost:27017/ecommerce', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -45,6 +30,14 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const productsRouter = require('./src/routes/products');
+const cartsRouter = require('./src/routes/carts');
+
+app.use('/products', productsRouter);
+app.use('/carts', cartsRouter);
+app.get('/chat', (req, res) => {
+  res.render('chat', { layout: 'main' });
+});
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
